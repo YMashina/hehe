@@ -11,12 +11,12 @@ int intcmp(const void* a, const void* b)
 {
     return (*(int*)a - *(int*)b);
 }
+
 int floatcmp(const void* a, const void* b)
 {
-    if (*(float*)a - *(float*)b < 0)
-        return -1;
-    else
-        return 0;
+    float fa = *(const float*)a;
+    float fb = *(const float*)b;
+    return (fa > fb) - (fa < fb);
 }
 
 void swap(void* a, void* b, size_t elsize)
@@ -35,9 +35,9 @@ void bubbleSort(void* arr, int arrl, size_t elsize, int (*cmp)(const void*, cons
     int i, j;
     char* p = arr;
     for (i = 0; i < arrl - 1; i++)
-        for (j = 1; j < arrl; j++)
-            if (cmp(&p[elsize * i], &p[elsize * j]) > 0)
-                swap(&p[elsize * i], &p[elsize * j], elsize);
+        for (j = 0; j < arrl - i - 1; j++)
+            if (cmp(&p[elsize * j], &p[elsize * j + elsize]) > 0)
+                swap(&p[elsize * j], &p[elsize * j + elsize], elsize);
 }
 
 void printarr(void* arr, int size, size_t elsize, int choice)
@@ -68,18 +68,18 @@ void printarr(void* arr, int size, size_t elsize, int choice)
 
 int main()
 {
-    int choice, N = 20, i = 0;
+    int choice, N, i = 0;
     size_t elsize;
     void* arr;
     char** carr = NULL;
     int* iarr = NULL;
     float* farr = NULL;
     int (*cmp)(const void*, const void*);
-    printf("Sorting an array of following types:\nChoose type:\n1-char* (strings)\n2-int\n3-float\n");
+    printf(
+        "Sorting an array of following types:\nChoose type:\n1-char* (strings)\n2-int\n3-float\n");
     scanf("%d", &choice);
     printf("Set number of elements:\n");
-    scanf("%d", &N);
-    getchar();
+    scanf("%d", &N); // getchar();
     printf("Separate elements by Enter please\n");
     switch (choice)
     {
