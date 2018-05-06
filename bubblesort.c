@@ -79,7 +79,7 @@ int main()
         "Sorting an array of following types:\nChoose type:\n1-char* (strings)\n2-int\n3-float\n");
     scanf("%d", &choice);
     printf("Set number of elements:\n");
-    scanf("%d", &N); // getchar();
+    scanf("%d", &N); getchar();
     printf("Separate elements by Enter please\n");
     switch (choice)
     {
