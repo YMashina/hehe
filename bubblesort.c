@@ -14,9 +14,13 @@ int intcmp(const void* a, const void* b)
 
 int floatcmp(const void* a, const void* b)
 {
-    float fa = *(const float*)a;
-    float fb = *(const float*)b;
-    return (fa > fb) - (fa < fb);
+if ((fabs(*(float*)a)-fabs(*(float*)b))<0.000001)
+return 0;
+if (*(float*)a>*(float*)b)
+return 1;
+else return -1;
+}
+
 }
 
 void swap(void* a, void* b, size_t elsize)
