@@ -9,7 +9,9 @@ int pcharcmp(const void* a, const void* b)
 
 int intcmp(const void* a, const void* b)
 {
-    return (*(int*)a - *(int*)b);
+    int ia = (const int*) a;
+    int ib = (const int*) b;
+    return (ia > ib) - (ia < ib);
 }
 
 int floatcmp(const void* a, const void* b)
