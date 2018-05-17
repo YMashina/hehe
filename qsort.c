@@ -35,11 +35,11 @@ int main(){
     for (; i < N; i++)
             {
                 printf("[max=%d] element %d:\n", N, i + 1);
-                scanf("%d", &iarr[i]);
+                scanf("%d", &array[i]);
             }
     qSort(array, 0, N-1);
     printf("Sorted:\n");
-    for (; i < N; i++){
+    for (i = 0; i < N; i++){
         printf("%d\n");
     }
     return 0;
