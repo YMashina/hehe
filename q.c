@@ -1,10 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h> 
 
-void swap(int* a, int* b){
+/*void swap(int* a, int* b){
     int temp = *a;
     *a = *b;
     *b = temp;
+}*/
+
+void swap(void* a, void* b, size_t elsize){
+    for(char i = 0; i < elsize; i++){
+    char temp = *(char*)a+i;
+    *(char*)a+i = *(char*)b+i;
+    *(char*)b+i = temp;
+    }
 }
 
 int cmp(const void* a, const void* b)
@@ -14,18 +22,18 @@ int cmp(const void* a, const void* b)
     return (ia > ib) - (ia < ib);
 }
 
-void qSort(int* array, int start, int end, int (*cmp)(const void* a, const void* b)){
+void qSort(int* array, int start, int end, int (*cmp)(const void* a, const void* b), size_t elsize){
     if (cmp(&start,&end)!=-1) return;
 
     int pivot = array[end];
     int pivotIndex = start;
     for(int i = start; i < end; i++){
         if(cmp(&array[i],&pivot)!=1){
-            swap (&array[i],&array[pivotIndex]);
+            swap (&array[i],&array[pivotIndex], elsize);
             pivotIndex++;
             }
     }
-    swap(&array[pivotIndex], &array[end]);
+    swap(&array[pivotIndex], &array[end], elsize);
     
     qSort (array, start, pivotIndex-1, cmp);
     qSort (array, pivotIndex+1, end, cmp);
@@ -45,7 +53,7 @@ int main(){
                 scanf("%d", &array[i]);
             }
 
-    qSort(array, 0, N-1, cmp);
+    qSort(array, 0, N-1, cmp, sizeof(int));
 
     printf("Sorted:\n");
     for (i = 0; i < N; i++){
