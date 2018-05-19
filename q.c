@@ -9,9 +9,9 @@
 
 void swap(void* a, void* b, size_t elsize){
     for(char i = 0; i < elsize; i++){
-    char temp = *(char*)a+i;
-    *(char*)a+i = *(char*)b+i;
-    *(char*)b+i = temp;
+    char temp = *((char*)a+i);
+    *((char*)a+i) = *((char*)b+i);
+    *((char*)b+i) = temp;
     }
 }
 
@@ -35,8 +35,8 @@ void qSort(int* array, int start, int end, int (*cmp)(const void* a, const void*
     }
     swap(&array[pivotIndex], &array[end], elsize);
     
-    qSort (array, start, pivotIndex-1, cmp);
-    qSort (array, pivotIndex+1, end, cmp);
+    qSort (array, start, pivotIndex-1, cmp, elsize);
+    qSort (array, pivotIndex+1, end, cmp, elsize);
 }
 
 int main(){
