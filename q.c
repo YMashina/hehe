@@ -1,11 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h> 
+#include <string.h>
 
 /*void swap(int* a, int* b){
     int temp = *a;
     *a = *b;
     *b = temp;
-}*/
+}
+
+void swap(void* a, void* b, size_t elsize){
+    void* tmp = malloc(elsize);
+    memcpy(tmp, a, elsize);
+    memcpy(a, b, elsize);
+    memcpy(b, tmp, elsize);
+    free(tmp);
+}
+*/
 
 void swap(void* a, void* b, size_t elsize){
     for(char i = 0; i < elsize; i++){
