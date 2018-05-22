@@ -160,7 +160,7 @@ int main()
         return 0;
     }
 
-    printf("Mind that coordinate origin is in the bottom left of the picture!\n Square brackets mean input mask.\nDo NOT include them.\nTop left coordinates [x0 y0]:\n");
+    printf("Mind that coordinate origin is in the bottom left of the picture!\nSquare brackets mean input mask.\nDo NOT include them.\nTop left coordinates [x0 y0]:\n");
     scanf("%d %d", &x0, &y0);
     printf("Bottom right coordinates [x1 y1]:\n");
     scanf("%d %d", &x1, &y1);
