@@ -85,13 +85,13 @@ char** ReadBmp(FILE* input, BMFileHeader* FileHeader, BMInfoHeader* InfoHeader)
 
 char** Cut(char** raster, int x0, int y0, int x1, int y1,BMFileHeader* FileHeader, BMInfoHeader* InfoHeader)
 {
-    int i = 0, j = 0, k = 0, e = 0, w=0;
+    int i = 0, j = 0, k = 0, e = 0, w=0, N=100000;
     RGB* str = NULL;
-    RGB** area = (RGB**)malloc(sizeof(RGB*)*(y0-y1+1)); 
+    RGB** area = (RGB**)malloc(N); 
     
     for ( i = 0; i <=y0-y1; i++)
     {
-        area[i] = (RGB*)malloc(sizeof(RGB)*(x1-x0+1));  
+        area[i] = (RGB*)malloc(N);  
         memmove(area[i], raster[y1+i]+x0*sizeof(RGB), sizeof(RGB)*(x1-x0+1));//y is a row, x is a column
 
     }
