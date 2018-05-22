@@ -1,261 +1,202 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-typedef struct MusicalComposition
-{
-     char* name;
-     char* author;
-     int year;
-     struct MusicalComposition* next;
-     struct MusicalComposition* prev;
-} MusicalComposition;
+#pragma pack(push, 1)
 
-MusicalComposition* createMusicalComposition(char* name, char* author, int year)
+typedef struct BMFileHeader
 {
-    MusicalComposition* composition = (MusicalComposition*) malloc(sizeof(MusicalComposition));
-    composition->name = name;
-    composition->author = author;
-    composition->year = year;
-    composition->next = NULL;
-    composition->prev = NULL;
-    return composition;
-}
-MusicalComposition* createMusicalCompositionList(char** array_names, char** array_authors, int* array_years, int n)
+    unsigned short btype;
+    unsigned int bsize;
+    unsigned int breserved12;
+    unsigned int boffset;
+}BMFileHeader;
+
+typedef struct BMInfoHeader
 {
-    if(n==0)
-        return NULL;
-    int i = 1;
-    MusicalComposition *head = createMusicalComposition(array_names[0], array_authors[0], array_years[0]);
-    MusicalComposition *list = head;
-    for (; i < n; i++)
-    {
-        list->next = createMusicalComposition(array_names[i], array_authors[i], array_years[i]);
-        list->next->prev=list; list=list->next;
+    unsigned int size;
+    unsigned int width;
+    unsigned int height;
+    unsigned short planes;
+    unsigned short bitCount;
+    unsigned int compression;
+    unsigned int sizelmage;
+    unsigned int xPelsPerMeter;
+    unsigned int yPelsPerMeter;
+    unsigned int clrUsed;
+    unsigned int clrImportant;
+
+}BMInfoHeader;
+
+#pragma pack(pop)
+
+typedef struct RGB
+{
+    char  red;
+    char  green;
+    char  blue;
+
+} RGB;
+
+int Check(FILE* input,int x0,int y0,int x1,int y1)
+{
+    if (x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 || x1 - x0 < 0 || y0-y1 < 0){ /*Coordinates are to be positive, area is to be positive*/
+        printf("Error: invalid coordinates\n"); 
+        fclose(input);
+        return 0;
     }
-    return head;
-}
-void push(MusicalComposition** phead, MusicalComposition* element)
-{
-    MusicalComposition* head = *phead;
-    if(!head) {
-        *phead=element; return;
-    }
-    while (head->next != NULL)
+    if ((x1 - x0) != (y0 - y1)) //if the area isn't square
     {
-        head = head->next;
+        printf("The area isn't square\n");
+        fclose(input);
+        return 0;
     }
-    head->next = element;
-    element->prev = head;
-}
-void removeEl(MusicalComposition** phead, char* name_for_remove)
-{
-    MusicalComposition* head = *phead;
-    for(;head!=NULL;)
-    {
-
-        if(strcmp(head->name,name_for_remove))
-        {
-            head = head->next;
-        }
-
-      else {
-         if (head->prev==NULL)
-        {
-            if (head->next==NULL)
-            {
-                *phead=head->next;
-                free(head); break;
-            }
-            *phead=head->next;
-            head=head->next;
-            free(head->prev);
-            head->prev=NULL;
-            return;
-        }
-        if (head->next==NULL)
-        {
-            head->prev->next = head->next;
-            free(head); break;
-        }
-        head->prev->next = head->next;
-        head->next->prev = head->prev;
-        MusicalComposition* list = head->next;
-        free(head);
-        head=list;
-        }
-   }
+    return 1;
 }
 
-MusicalComposition* swap_and_delete(MusicalComposition** phead)   
-{
-MusicalComposition* temp = *phead;
-MusicalComposition* last = *phead;
-MusicalComposition* second = *phead;
-MusicalComposition* penult = *phead;
-while (last->next != NULL)
-{
-    last = last->next;
-}
-penult = last->prev;
-second = temp->next;
-last->next = second->next;
-second->next->prev = last;
-temp->prev = penult->prev;
-penult->prev->next = temp;
-free(second);
-free(penult);
-temp->next = NULL;
-last->prev = NULL;
-*phead = last;
-return *phead;
-}
 
-int count(MusicalComposition* head)
-{
-    int amm = 0;
-    for (; head!=NULL; head=head->next)
-        amm++;
-    return amm;
-}
-void print_names(MusicalComposition* head)
-{
-    for (; head != NULL; head=head->next)
-        printf("%s\n", head->name);
-}
+char** ReadBmp(FILE* input, BMFileHeader* FileHeader, BMInfoHeader* InfoHeader)
+{   int i = 0, j = 0, k = 0;
+    fseek(input,0,SEEK_END);//set pointer to the end of the file
+    int BmpSize = ftell(input);//pointer value of current position in stream. For a binary stream, ammount of bytes from the beginning of the file is returned
+    fseek(input,0,SEEK_SET);//set pointer to the beginning of the file
 
-int main(){
-    int length, choice, exit = 1;
-    char name[80];
-    char author[80];
-    char* name_for_push;
-    char* author_for_push;
-    int year_for_push;
-    char name_for_remove[80];
-    MusicalComposition* head = NULL;
-
-    printf("Сколько элементов в списке будет?\n");
-    scanf("%d", &length);
+    char* buf = (char*)malloc(sizeof(char)*BmpSize); 
     
-    char** names = (char**)malloc(sizeof(char*)*length);
-    char** authors = (char**)malloc(sizeof(char*)*length);
-    int* years = (int*)malloc(sizeof(int)*length);
+    fread(buf,sizeof(char),BmpSize,input);
+    *FileHeader = *((BMFileHeader*)buf); //set FileHeader pointer to point to the beginning of the file
+    buf += sizeof(BMFileHeader); //move buf pointer to the start of InfoHeader (after the end of FileHeader)
+    *InfoHeader = *((BMInfoHeader*)buf); //set InfoHeader pointer to point to the beginning of BMInfoHeader structure
+    buf -= sizeof(BMFileHeader); // move back to beginning of BMFileHeader structure
+    buf += FileHeader -> boffset; // mobe buf pointer to point to the beginning of the picture raster (pixel info array)
 
-    if (length == 0) printf("Ваш список пуст\n");
-    else
+    int len = 3*InfoHeader->width + (InfoHeader->width%4); /* 24 bits = 3 bytes + allignment 
+    (the BMP format requires each row to be padded at the end such that each row is represented by multiples of 4 bytes of data)*/
+    char** raster = (char**)malloc(sizeof(char*)*InfoHeader->height);
+
+    for(i=0; i < InfoHeader->height; i++)
     {
-    for (int i=0;i<length;i++)
+        raster[i] = (char*)malloc(sizeof(char)*len);//fill raster with picture info, like an array of strings
+        for(j=0; j < len; j++)
+        raster[i][j] = buf[k++];
+    }
+    return raster;
+}
+
+char** Cut(char** raster, int x0, int y0, int x1, int y1,BMFileHeader* FileHeader, BMInfoHeader* InfoHeader)
+{
+    int i = 0, j = 0, k = 0, e = 0, w=0;
+    RGB* str = NULL;
+    RGB** area = (RGB**)malloc(sizeof(RGB*)*(y0-y1+1)); 
+    
+    for ( i = 0; i <=y0-y1; i++)
     {
-        getchar();
-        printf("Название композиции:\n");
-        fgets(name, 80, stdin);
-        
-        printf("Автор композиции:\n");
-        fgets(author, 80, stdin);
-        
-        printf("Год создания композиции:\n");
-        scanf("%d", &years[i]);
-
-        (*strstr(name,"\n"))=0;
-        (*strstr(author,"\n"))=0;
-
-        names[i] = (char*)malloc(sizeof(char*) * (strlen(name)+1));
-        authors[i] = (char*)malloc(sizeof(char*) * (strlen(author)+1));
-
-        strcpy(names[i], name);
-        strcpy(authors[i], author);
+        area[i] = (RGB*)malloc(sizeof(RGB)*(x1-x0+1));  
+        memmove(area[i], raster[y1+i]+x0*sizeof(RGB), sizeof(RGB)*(x1-x0+1));//y is a row, x is a column
 
     }
     
-    head = createMusicalCompositionList(names, authors, years, length);
-    }
-	do {
-    printf("Вы хотите:\n");
-    printf("1 - знать количество композиций\n");
-    printf("2 - вывести все композиции\n");
-    printf("3 - добавить композицию\n");
-    printf("4 - удалить определенную композицию\n");
-    printf("5 - местами поменять первый и последний элементы списка, удалив второй и предпоследний\n");
-    printf("0 - уйти\n");
-
-    scanf("%d", &choice);
-
-    switch(choice){
-
-      case 1: 
-
-          printf("Количество композиций: %d\n", count(head));
-          break;
-
-      case 2:
-
-          if (length == 0)
-            printf("Печатать нечего, ваш список пуст\n");
-          else 
-            print_names(head);
-          break;
-
-      case 3:
-          getchar();
-          printf("Не более 80 символов вы можете вводить\n");
-          printf("Название:\n");
-          char* name_for_push = (char*)malloc(sizeof(char)*80);
-          char* author_for_push = (char*)malloc(sizeof(char)*80);
-          fgets(name_for_push, 80, stdin);
-
-          printf("Автор:\n");
-          fgets(author_for_push, 80, stdin);
-              
-          printf("Год:\n");
-          scanf("%d", &year_for_push);
-
-          (*strstr(name_for_push, "\n")) = 0;
-          (*strstr(author_for_push, "\n")) = 0;
-
-          MusicalComposition* element_for_push = createMusicalComposition(name_for_push, author_for_push, year_for_push);
-          push(&head, element_for_push);
-          break;
-      
-      case 4:
-          getchar();
-          printf("Название удаляемой композиции:\n");
-          fgets(name_for_remove, 80, stdin);
-          (*strstr(name_for_remove, "\n")) = 0;
-          removeEl(&head, name_for_remove);
-          break;
-
-      case 5:
-
-          swap_and_delete(&head);
-          break;
-
-      case 0:
-
-          printf("Выход\n");
-          exit = 0;
-          break;
-
-      default:
-          printf("Нет такой команды\n");
-     }
-  }
-    while(exit);
-
-	for (; head != NULL; head = head->next)
+    for ( j = y1; j <= y0; j++) //restricting demanded area
     {
-        free(head->prev);
-        if (head->next == NULL)
-        free(head);
+        str = (RGB*)raster[j];
+        for( k = x0; k <=x1; k++)
+        {
+            str[k]=area[e][w++];      
+        }
+        e++;
     }
 
-    for (int i=0;i<length;i++){
-        free(names[i]);
-        free(authors[i]);
+    int newwidth = x1-x0+1; // width in pixels
+    int newheight = y0-y1+1;
+    int newlength = newwidth*3+(x1-x0+1)%4; //width + allignment
+
+    char** newraster = (char**)malloc(sizeof(RGB*)*(y0-y1+1)); 
+    
+    for ( i = 0; i <=y0-y1; i++)
+    {
+        newraster[i] = (char*)malloc(sizeof(RGB)*(x1-x0+1));  
+        memmove(newraster[i], (char*)area[i], sizeof(RGB)*(x1-x0+1));//y is a row, x is a column
+
+    }
+
+    InfoHeader->sizelmage = newheight*newlength;
+    InfoHeader->width = newwidth;
+    InfoHeader->height = newheight;
+
+return newraster;
+}
+
+void NewBmp(char* input, char** raster, BMFileHeader* FileHeader, BMInfoHeader* InfoHeader)
+{   
+    int i,j ;
+    *(strchr(input, '.')) = '\0';
+    strcat(input, "_cut.bmp");
+
+    FILE* output = fopen(input,"wb");
+    fwrite(FileHeader,sizeof(BMFileHeader), 1, output); //set FileHeader
+    fwrite(InfoHeader,sizeof(BMInfoHeader),1, output); //set InfoHeader
+    int pixel = 3*InfoHeader->width; // pixel size
+    int alignment = InfoHeader->width%4; //allignment size
+    for(i=0; i < InfoHeader->height; i++)
+    {
+        fwrite(raster[i], sizeof(char), pixel, output);
+        for (j=0; j < alignment; j++) //to fill alignment junk with zeros
+        fputc(0, output);
+    }
+    fclose(output);
+}
+
+int main()
+{
+    int x0 = -1, x1 = -1, y0 = -1, y1 = -1;
+    char* BmpName = (char*)malloc(sizeof(char)*100);
+    printf("-Cut a BMP -\nName of the BMP file (do NOT include file extention .bmp):\n");
+    fgets(BmpName,100,stdin);
+    *(strchr(BmpName,'\n')) = '\0';
+    strcat(BmpName,".bmp");
+    FILE* input = fopen(BmpName, "rb");
+    if(input==NULL){
+        printf("Error: no such file\n");
+        return 0;
+    }
+
+    printf("Mind that coordinate origin is in the bottom left of the picture!\n Square brackets mean input mask.\nDo NOT include them.\nTop left coordinates [x0 y0]:\n");
+    scanf("%d %d", &x0, &y0);
+    printf("Bottom right coordinates [x1 y1]:\n");
+    scanf("%d %d", &x1, &y1);
+
+
+    if (Check(input, x0,y0,x1,y1) == 0)
+    {
+        printf("The area isn't correctly defined: invalid coordinates\n");
+        free(BmpName);
+        return 0;
+    }
+
+    BMFileHeader FileHeader;
+    BMInfoHeader InfoHeader;
+
+    char** buf = ReadBmp(input, &FileHeader, &InfoHeader);
+    fclose(input);
+    if (InfoHeader.width < x1+1 || InfoHeader.height < y0+1)
+    {
+        printf("The area isn't correctly defined: larger than possible\n");
+        free(BmpName);
+        return 0;
     }
     
-    free(names);
-    free(authors);
-    free(years);
+    buf = Cut(buf, x0, y0,x1,y1, &FileHeader, &InfoHeader);
+    
+    NewBmp(BmpName,buf, &FileHeader, &InfoHeader);
+    
+    printf("Cut BMP file created: %s\n", BmpName);
 
+    free(BmpName);
+
+    for(int i=0; i < InfoHeader.height; i++){
+        free(buf[i]);
+    }
+
+    free(buf);
     return 0;
 }
