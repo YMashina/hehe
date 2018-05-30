@@ -49,16 +49,16 @@ int flag = 0, i=0, j = 0;
             if (j + 1 < width && j - 1 > 0 && i - 1 > 0 && i + 1 < height)
             {
 
-                if (raster[i][j * rgb] >= 210 && raster[i][j * rgb + 1] >= 210 && raster[i][j * rgb + 2] >= 210)
+                if (raster[i][j * rgb] >= 230 && raster[i][j * rgb + 1] >= 230 && raster[i][j * rgb + 2] >= 230)
                 {
 
-                    if (raster[i][(j + 1) * rgb] <= 210 && raster[i][(j + 1) * rgb + 1] <= 210 && raster[i][(j + 1) * rgb + 2] <= 210)
+                    if (raster[i][(j + 1) * rgb] <= 230 && raster[i][(j + 1) * rgb + 1] <= 230 && raster[i][(j + 1) * rgb + 2] <= 230)
                         flag = 1;
-                    if (raster[i][(j - 1) * rgb] <= 210 && raster[i][(j - 1) * rgb + 1] <= 210 && raster[i][(j - 1) * rgb + 2] <= 210)
+                    if (raster[i][(j - 1) * rgb] <= 230 && raster[i][(j - 1) * rgb + 1] <= 230 && raster[i][(j - 1) * rgb + 2] <= 230)
                         flag = 1;
-                    if (raster[i + 1][(j) * rgb] <= 210 && raster[i + 1][(j) * rgb + 1] <= 210 && raster[i + 1][(j) * rgb + 2] <= 210)
+                    if (raster[i + 1][(j) * rgb] <= 230 && raster[i + 1][(j) * rgb + 1] <= 230 && raster[i + 1][(j) * rgb + 2] <= 230)
                         flag = 1;
-                    if (raster[i - 1][(j) * rgb] <= 210 && raster[i - 1][(j) * rgb + 1] <= 210 && raster[i - 1][(j) * rgb + 2] <= 210)
+                    if (raster[i - 1][(j) * rgb] <= 230 && raster[i - 1][(j) * rgb + 1] <= 230 && raster[i - 1][(j) * rgb + 2] <= 230)
                         flag = 1;
                 }
 
