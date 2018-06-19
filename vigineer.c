@@ -1,6 +1,6 @@
 # include <stdio.h> 
 # include <string.h>
-#include "stdlib.h"
+#include <stdlib.h>
 
 //C[i] = (p[i] + k[i mod klength] ) mod N, C = cipher, k = secret key (word), p = text, N = number of letters in the alphabet
 void vigenereCipher(char* text, char* k){
