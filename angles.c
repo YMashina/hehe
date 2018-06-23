@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
+//better stdint
 #pragma pack(push, 1)
 
 typedef struct BMFileHeader
