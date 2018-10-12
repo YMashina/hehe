@@ -1,5 +1,5 @@
 #!/bin/bash
-g++ ./Source/Main.cpp ./Source/l_impl.cpp -o Lab2
+g++ ./Source/Main.cpp ./Source/L_func.cpp -o Lab2
 echo -e 'Test 1:\n'
 echo 'Input sequence:'
 cat ./Tests/Test1.txt
