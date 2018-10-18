@@ -2,7 +2,7 @@
 #include "L_func.h"
 #include <iostream>
 #include <cstdlib>
-
+#include <cstdio>
 using namespace std;
 namespace h_list
 {
